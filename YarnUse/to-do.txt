@@ -1,0 +1,14 @@
+This project is meant to analyze the amount of yarn needed to complete a certain pattern.  This is done by accessing completely projects in the Ravelry database.
+
+The steps:
+-For a given pattern name, find the pattern number.
+-For that pattern, find completed projects.
+-Of completed projects store the yardage used, the weight of the yarn used, and a score/weight for that data.
+-Scores are based on how closely that project appears to match the designer's intention.  Projects made with a dramtically different yarn (sport instead of worsted, for example), or with large alterations (no sleeves, extra repeats, etc.).  Note that this will be really, really tricky to do for multi-sized sweaters, so that will come later.
+-Make a histogram of the data, perhaps fit it, and extract reasonable parameters.
+
+Tasks:
+0. For testing, use Shetland Border Shawl by Wendy D. Johnson
+1. Write code to convert pattern name to pattern number.  This will primarily happen in main function.
+2. For pattern number, get completed projects and store yardage used and yarn weight.  I think this should be its own class.
+3. Write another class to process comments and assign a weight based on that.

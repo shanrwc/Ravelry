@@ -1,0 +1,9 @@
+from source.rankerclass import Ranker
+import sys
+
+ranker = Ranker('shanrwc')
+ranker.loadDicts('DEFAULT')
+output = ranker.classifyPattern('573')
+print output
+ranker.updateTypes('Vest',3)
+ranker.updateTags('Ribbing',1)
