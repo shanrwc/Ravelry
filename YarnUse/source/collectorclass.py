@@ -33,12 +33,14 @@ class Collector:
         nomWeight = ""
         nomYardage = ""
 
-    def saveData(self):
+    def saveData(self, maxi, mini):
         filename = "data/"+self.pattname + "_yarnusage.txt"
         outfile = open(filename,"write")
         outfile.write("NAME: "+self.pattname+"\n")
         outfile.write("WEIGHT: "+self.nomWeight+"\n")
         outfile.write("YARDAGE: "+str(self.nomYardage)+"\n")
+        outfile.write("MAXIMUM: "+str(maxi)+"\n")
+        outfile.write("MINIMUM: "+str(mini)+"\n")
         for entry in self.data:
             snippet = "ENTRY: "+str(entry[0])+"  "+str(entry[1])+"\n"
             outfile.write(snippet)
@@ -93,6 +95,9 @@ class Collector:
         totalProjs = (pagedata["paginator"])["results"]
         totalpages = int(totalProjs/1000)+1
         if totalpages > 10: totalpages = 10
+        inc = 100/totalpages
+        maxi = 0
+        mini = 10000
         for nPage in range(1,totalpages+1):
             response2 = queryRavelry("https://api.ravelry.com/patterns/"+str(self.pattnum)+"/projects.json?page="+str(nPage)+"&page_size=1000&photoless=1")
             projInfo = json.load(response2)
@@ -117,7 +122,11 @@ class Collector:
 #                    print snippet
                     #comments = (json.load(response3))["comments"]
 
+                    if yarnUsed > maxi: maxi = yarnUsed
+                    if yarnUsed < mini: mini = yarnUsed
                     weight = 1.0
                     weight = weight*self.compareWeights(pattWeight,yarnWeight)
                     self.data.append([yarnUsed,weight])
-        self.saveData()
+            snippet = str(nPage*inc) + "% of projects analyzed"
+            print snippet
+        self.saveData(maxi,mini)
