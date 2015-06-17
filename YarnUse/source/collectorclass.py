@@ -23,6 +23,7 @@ class Collector:
     data = []
     nomWeight = ""
     nomYardage = ""
+    maxYardage = ""
 
 ###########################################################
 
@@ -32,13 +33,15 @@ class Collector:
         data.clear()
         nomWeight = ""
         nomYardage = ""
+        maxYardage = ""
 
     def saveData(self, maxi, mini):
         filename = "data/"+self.pattname + "_yarnusage.txt"
         outfile = open(filename,"write")
         outfile.write("NAME: "+self.pattname+"\n")
         outfile.write("WEIGHT: "+self.nomWeight+"\n")
-        outfile.write("YARDAGE: "+str(self.nomYardage)+"\n")
+        outfile.write("MIN_YARDAGE: "+str(self.nomYardage)+"\n")
+        outfile.write("MAX_YARDAGE: "+str(self.maxYardage)+"\n")
         outfile.write("MAXIMUM: "+str(maxi)+"\n")
         outfile.write("MINIMUM: "+str(mini)+"\n")
         for entry in self.data:
@@ -89,6 +92,7 @@ class Collector:
         pattWeight = pattData["pattern"]["yarn_weight"]["name"]
         self.nomWeight = pattWeight
         self.nomYardage = pattData["pattern"]["yardage"]
+        self.maxYardage = pattData["pattern"]["yardage_max"]
         #Query once to figure out total number of projects available
         response = queryRavelry("https://api.ravelry.com/patterns/"+str(self.pattnum)+"/projects.json?page=1&page_size=10&photoless=1")
         pagedata = json.load(response)

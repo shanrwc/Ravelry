@@ -120,56 +120,6 @@ double makeDouble(string input)
 //   return(times);
 // }
 
-vector<double> getXCoords(vector<string> mags)
-{
-  vector<double> xs;
-  if ((int)mags.size() < 1)
-  {
-    return (xs);
-  }
-  else
-  {
-    if (mags[0].find("interweave-knits") != string::npos)
-    {
-      for (int i = 0; i != (int)mags.size(); ++i)
-      {
-	double x = 0;
-	if (mags[i].find("spring") != string::npos)
-	{
-	  x = 2;
-	}
-	else if (mags[i].find("summer") != string::npos)
-	{
-	  x = 4;
-	}
-	else if (mags[i].find("fall") != string::npos)
-	{
-	  x = 6;
-	}
-	else if (mags[i].find("winter") != string::npos)
-	{
-	  x = 10;
-	}
-	else
-	{
-	  cout << "Unrecognized magazine string!" << mags[i] << endl;
-	  return(xs);
-	}
-
-	double year = makeDouble(mags[i].substr(mags[i].length()-4,4));
-	x = x+(year - 2005)*12;
-	xs.push_back(x);
-      }
-    }
-    else
-    {
-      cout << "Unrecognized magazine string!" << mags[0] << endl;
-      return(xs);
-    }
-    return (xs);
-  }
-}
-
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -189,8 +139,8 @@ void plotYarnUse()
   for (int nPat = 0; nPat != (int)patterns.size(); ++nPat)
   {
     //Declare histogram(s)
-    TH1D* unw = new TH1D((patterns[nPat]+"_unweighted").c_str(),(patterns[nPat]+"_unweighted").c_str(),100,0,1000);
-    //    TH1D* yw = new TH1D((patterns[nPat]+"_yweighted").c_str(),(patterns[nPat]+"_yweighted").c_str(),100,0,1000);
+    TH1D* unw = 0;
+    TH1D* yw = 0;//new TH1D((patterns[nPat]+"_yweighted").c_str(),(patterns[nPat]+"_yweighted").c_str(),100,0,1000);
 
     //Open text file
     ifstream infile (("data/"+patterns[nPat]+"_yarnusage.txt").c_str());
@@ -198,7 +148,10 @@ void plotYarnUse()
 
     string name;
     string yarnW;
-    double yardage; 
+    double minyardage; 
+    double maxyardage;
+    double minused = 0;
+    double maxused = 0;
 
     if (infile.is_open())
     {
@@ -211,12 +164,23 @@ void plotYarnUse()
 
 	if (line.find("NAME: ") != string::npos) name = pieces[1];
 	else if (line.find("WEIGHT: ") != string::npos) yarnW = line.substr(8,line.length());
-	else if (line.find("YARDAGE: ") != string::npos) yardage = makeDouble(pieces[1]);
-	else if (line.find("ENTRY: ") != string::npos)
+	else if (line.find("MIN_YARDAGE: ") != string::npos) minyardage = makeDouble(pieces[1]);
+	else if (line.find("MAX_YARDAGE: ") != string::npos) maxyardage = makeDouble(pieces[1]);
+	else if (line.find("MINIMUM: ") != string::npos) minused = makeDouble(pieces[1]);
+	else if (line.find("MAXIMUM: ") != string::npos) maxused = makeDouble(pieces[1]); 
+
+	if (minused != 0 && maxused != 0 && unw == 0 && yw == 0)
 	{
-	  cout << pieces[1] << endl;
+	  double nbins = int((maxused - minused)/50) + 1;
+	  unw = new TH1D((patterns[nPat]+"_unweighted").c_str(),(patterns[nPat]+"_unweighted").c_str(),nbins,int(minused/10)*10,int(maxused/10)*10+10);
+	  yw = new TH1D((patterns[nPat]+"_yarnweight").c_str(),(patterns[nPat]+"_yarnweight").c_str(),nbins,int(minused/10)*10,int(maxused/10)*10+10);
+	}
+
+	if (line.find("ENTRY: ") != string::npos && unw != 0)
+	{
+	  //	  cout << pieces[1] << endl;
 	  unw->Fill(makeDouble(pieces[1]));
-	  //	  yw->Fill(makeDouble(pieces[1]),makeDouble(pieces[2]));
+	  yw->Fill(makeDouble(pieces[1]),makeDouble(pieces[2]));
 	}	
       }//closes while-loop over file's goodness
     }//closes if-statement over file's openness
@@ -226,11 +190,35 @@ void plotYarnUse()
     pad->SetFillColor(0);
     pad->SetTitle((patterns[nPat]+"_plots").c_str());
     //    pad->Divide(2,2);
+    pad->SetBottomMargin(0.14);
+    pad->SetLeftMargin(0.2);
 
     unw->SetTitle("");
+    unw->SetLineWidth(3);
+    unw->SetLineColor(kAzure-3);
+    unw->GetXaxis()->SetTitleSize(0.05);
+    unw->GetXaxis()->SetTitleOffset(1.2);
     unw->GetXaxis()->SetTitle("Yarn Used [m]");
+    unw->GetYaxis()->SetTitleSize(0.05);
+    unw->GetYaxis()->SetTitleOffset(1.35);
     unw->GetYaxis()->SetTitle("Projects");
     unw->Draw();
+
+    TLine* line1 = new TLine(minyardage,0,minyardage,0.75*unw->GetMaximum());
+    line1->SetLineWidth(2);
+    line1->SetLineColor(kRed+1);
+    line1->Draw();
+
+    TLine* line2 = new TLine(maxyardage,0,maxyardage,0.75*unw->GetMaximum());
+    line2->SetLineWidth(2);
+    line2->SetLineColor(kRed+1);
+    line2->Draw();
+
+    TPaveText* text = new TPaveText(0.2,0.92,0.8,0.98,"NDC");
+    text->SetFillColor(0);
+    text->SetBorderSize(0);
+    text->AddText("Unweighted");
+    text->Draw();
   }//closes for-loop over patterns
 
 
