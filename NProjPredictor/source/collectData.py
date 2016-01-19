@@ -82,7 +82,9 @@ else:
             if data['published'] is None: continue
             else:
                 pubdate = datetime.strptime(data['published'],'%Y/%m/%d')
-                info.append((datetime.today()-pubdate).days)
+                datediff = (datetime.today()-pubdate).days
+                if datediff > 4000: continue
+                else: info.append((datetime.today()-pubdate).days)
 
             #Using id numbers for crafts; knitting is 2
             info.append(data['craft']['id'])
