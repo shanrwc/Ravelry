@@ -63,7 +63,7 @@ else:
         poss_ids = poss_ids.difference(set([i]))
 #        print "Now Downloadable: ",len(poss_ids)
 
-        request = urllib2.Request("https://api.ravelry.com/patterns/"+str(i)+".json")
+        request = urllib2.Request(("https://api.ravelry.com/patterns/"+str(i)+".json").strip())
         base64string = base64.encodestring('%s:%s' % (access,personal)).replace('\n','')
         request.add_header("Authorization","Basic %s" % base64string)
 
@@ -119,6 +119,8 @@ else:
             #note that pattern attributes (things like female or unisex or lace) have id numbers
             info.append("'"+collectAttribs(data['pattern_attributes'])+"'")
             info.append(0)
+            info.append(len(data['pattern_attributes']))
+            info.append(data['comments_count'])
 
             #Clean up any Nones in the information (replace with zero)
             if None in info:

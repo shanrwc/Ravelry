@@ -25,9 +25,9 @@ class Splitter:
         all_ids = [ele[0] for ele in x.fetchall()]
 
         #Use cool random sample function to produce a random sample
-        self.eval_ids = random.sample(tuple(set(all_ids)),5000)
+        self.eval_ids = random.sample(tuple(set(all_ids)),6500)
         rem_ids = set(all_ids).difference(set(self.eval_ids))
-        self.feat_ids = random.sample(tuple(rem_ids),10000)
+        self.feat_ids = random.sample(tuple(rem_ids),20000)
         self.mod_ids = rem_ids.difference(self.feat_ids)
 
         #########################################3
@@ -40,7 +40,7 @@ class Splitter:
         #in the first slot
         #Note that the initialization parameter dictates how much information to extract
         feature_list = ""
-        if self.getall: feature_list = "id,nprojects,days_since_pub,craft,diff_avg,diff_count,favs_count,free,category,des_npatts,des_favs,nsources,rate_avg,rate_count,yardage,yarn_weight,downloadable,sti_gauge,row_gauge,nproj_class"
+        if self.getall: feature_list = "id,nprojects,days_since_pub,craft,diff_avg,diff_count,favs_count,free,category,des_npatts,des_favs,nsources,rate_avg,rate_count,yardage,yarn_weight,downloadable,sti_gauge,row_gauge,nproj_class,ntags,ncomments"
         else: feature_list = "id,nprojects,days_since_pub"
 
         conn = MySQLdb.connect(host="localhost",user="guest",passwd="",db="Ravelry_Projects",cursorclass=MySQLdb.cursors.SSCursor)
